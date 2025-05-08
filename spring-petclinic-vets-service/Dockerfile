@@ -7,14 +7,11 @@ WORKDIR /app
 # Sao chép file pom.xml
 COPY pom.xml .
 
-# Cài đặt các phụ thuộc của Maven (offline)
-RUN mvn dependency:go-offline
+# Bỏ qua bước 'dependency:go-offline' và build trực tiếp
+RUN mvn clean package -DskipTests
 
 # Sao chép toàn bộ mã nguồn vào container
 COPY src /app/src
-
-# Build ứng dụng
-RUN mvn clean package -DskipTests
 
 # Đưa ra image chứa app đã build
 FROM openjdk:11-jre-slim
