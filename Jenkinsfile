@@ -8,7 +8,16 @@ pipeline {
         stage('Build & Push Images') {
             steps {
                 script {
-                    def services = ['vets-service', 'visits-service', 'customers-service']
+                    def services = [
+                        'spring-petclinic-vets-service', 
+                        'spring-petclinic-visits-service', 
+                        'spring-petclinic-customers-service',
+                        'spring-petclinic-admin-server', 
+                        'spring-petclinic-api-gateway',
+                        'spring-petclinic-config-server', 
+                        'spring-petclinic-discovery-server', 
+                        'spring-petclinic-genai-service'
+                    ]
                     for (s in services) {
                         dir("${s}") {
                             withCredentials([usernamePassword(
