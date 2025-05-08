@@ -8,7 +8,7 @@ WORKDIR /app
 COPY pom.xml ./
 
 # Cài đặt các phụ thuộc của Maven (offline, nếu cần)
-RUN mvn dependency:resolve -DskipTests
+RUN mvn clean dependency:resolve -DskipTests -U
 
 # Sao chép toàn bộ mã nguồn vào container
 COPY src /app/src
