@@ -7,14 +7,11 @@ RUN apt-get update && apt-get install -y maven
 # Set working directory
 WORKDIR /app
 
-# Copy the pom.xml file
-COPY pom.xml .
+# Copy the pom.xml and the entire project
+COPY . .
 
 # Download the project dependencies
 RUN mvn dependency:go-offline -B
-
-# Copy the entire project
-COPY . .
 
 # Build the project (run Maven)
 RUN mvn clean package -DskipTests
