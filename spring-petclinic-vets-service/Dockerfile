@@ -1,28 +1,30 @@
-# Sử dụng image cơ bản với Maven và OpenJDK
-FROM maven:3.8.4-openjdk-11-slim as builder
+# Stage 1: Build the application
+FROM maven:3.8.4-openjdk-11-slim AS builder
 
-# Thiết lập thư mục làm việc trong container
+# Set the working directory in the container
 WORKDIR /app
 
-# Sao chép file pom.xml và các files liên quan vào container
-COPY pom.xml ./
-
-# Cài đặt các phụ thuộc của Maven (offline, nếu cần)
+# Copy the pom.xml and download dependencies
+COPY pom.xml ./ 
 RUN mvn clean dependency:resolve -DskipTests -U
 
-# Sao chép toàn bộ mã nguồn vào container
-COPY src /app/src
+# Copy the rest of the application source code
+COPY src ./src
 
-# Build ứng dụng mà không cần tải lại dependencies
-RUN mvn clean package -DskipTests
+# Build the application (skip tests to speed up the build)
+RUN mvn clean install -DskipTests
 
-# Đưa ra image chứa app đã build
+# Stage 2: Build the runtime image
 FROM openjdk:11-jre-slim
 
+# Set the working directory
 WORKDIR /app
-COPY --from=builder /app/target/spring-petclinic-vets-service-*.jar /app/spring-petclinic-vets-service.jar
 
-# Chạy ứng dụng
-ENTRYPOINT ["java", "-jar", "spring-petclinic-vets-service.jar"]
+# Copy the built JAR file from the builder stage
+COPY --from=builder /app/target/spring-petclinic-microservices-*.jar /app/spring-petclinic.jar
 
+# Expose the port the application will run on
 EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/spring-petclinic.jar"]
