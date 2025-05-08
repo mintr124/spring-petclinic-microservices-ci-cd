@@ -1,30 +1,32 @@
-# Stage 1: Build the application
+# Sử dụng Maven với JDK 11 để build ứng dụng
 FROM maven:3.8.4-openjdk-11-slim AS builder
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
-COPY pom.xml ./ 
-RUN mvn clean dependency:resolve -DskipTests -U
+# Sao chép pom.xml vào thư mục làm việc
+COPY pom.xml ./
 
-# Copy the rest of the application source code
+# Thực thi mvn validate thay vì dependency:resolve
+RUN mvn validate -DskipTests -U --no-transfer-progress
+
+# Sao chép toàn bộ mã nguồn vào container
 COPY src ./src
 
-# Build the application (skip tests to speed up the build)
+# Build ứng dụng, bỏ qua test
 RUN mvn clean install -DskipTests
 
-# Stage 2: Build the runtime image
+# Sử dụng image openjdk để chạy ứng dụng
 FROM openjdk:11-jre-slim
 
-# Set the working directory
+# Set working directory cho container chính
 WORKDIR /app
 
-# Copy the built JAR file from the builder stage
-COPY --from=builder /app/target/spring-petclinic-microservices-*.jar /app/spring-petclinic.jar
+# Sao chép ứng dụng đã build từ builder container
+COPY --from=builder /app/target/spring-petclinic-vets-service-*.jar ./app.jar
 
-# Expose the port the application will run on
+# Expose cổng mà ứng dụng sẽ chạy
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app/spring-petclinic.jar"]
+# Chạy ứng dụng
+ENTRYPOINT ["java", "-jar", "app.jar"]
