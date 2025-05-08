@@ -1,26 +1,22 @@
-# Build stage
+# Base image with Maven and JDK 11
 FROM maven:3.8.4-openjdk-11-slim AS builder
 
-# Làm việc tại thư mục /app
 WORKDIR /app
 
-# Sao chép toàn bộ project microservices
+# Sao chép toàn bộ project vào container
 COPY . .
 
-# Build toàn bộ dự án và skip test
+# Build toàn bộ project (bao gồm parent và các module con)
 RUN mvn clean install -DskipTests -U --no-transfer-progress
 
-# Run stage
+# Image run time
 FROM openjdk:11-jre-slim
 
-# Làm việc tại thư mục /app
 WORKDIR /app
 
-# Copy file jar của vets-service từ builder
+# Copy đúng jar của vets-service
 COPY --from=builder /app/spring-petclinic-vets-service/target/spring-petclinic-vets-service-*.jar ./app.jar
 
-# Mở cổng 8080
 EXPOSE 8080
 
-# Chạy ứng dụng
 ENTRYPOINT ["java", "-jar", "app.jar"]
