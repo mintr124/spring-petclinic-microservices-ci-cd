@@ -1,30 +1,28 @@
-# Sử dụng image của OpenJDK làm base image
-FROM openjdk:17-jdk-slim as build
+# Sử dụng image cơ bản với JDK
+FROM maven:3.8.4-openjdk-11-slim as builder
 
-# Đặt thư mục làm việc trong container
+# Thiết lập thư mục làm việc trong container
 WORKDIR /app
 
-# Sao chép file pom.xml và tải các phụ thuộc
+# Sao chép file pom.xml
 COPY pom.xml .
+
+# Cài đặt các phụ thuộc của Maven (offline)
 RUN mvn dependency:go-offline
 
 # Sao chép toàn bộ mã nguồn vào container
-COPY src ./src
+COPY src /app/src
 
-# Build ứng dụng bằng Maven
+# Build ứng dụng
 RUN mvn clean package -DskipTests
 
-# Sử dụng image nhẹ để chạy ứng dụng
-FROM openjdk:17-jdk-slim
+# Đưa ra image chứa app đã build
+FROM openjdk:11-jre-slim
 
-# Đặt thư mục làm việc trong container
 WORKDIR /app
+COPY --from=builder /app/target/your-app.jar /app/your-app.jar
 
-# Sao chép file JAR đã build từ build stage vào container
-COPY --from=build /app/target/vets-service.jar /app/vets-service.jar
+# Chạy ứng dụng
+ENTRYPOINT ["java", "-jar", "your-app.jar"]
 
-# Cấu hình container để chạy ứng dụng
-ENTRYPOINT ["java", "-jar", "/app/vets-service.jar"]
-
-# Cổng mà ứng dụng sẽ chạy trên container
 EXPOSE 8080
