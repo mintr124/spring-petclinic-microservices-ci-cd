@@ -8,8 +8,6 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 8080
-      protocol: TCP
-      name: http
+      targetPort: 8888
   selector:
     app: {{ include "config-server.name" . }}
