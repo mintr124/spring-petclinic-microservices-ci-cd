@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: mintr124/visits-service   # thay tên repo cho từng service
+  tag: "main"
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 9090
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
