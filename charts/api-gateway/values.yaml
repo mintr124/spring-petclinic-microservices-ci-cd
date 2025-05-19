@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: mintr124/config-server   # thay tên repo cho từng service
+  repository: mintr124/api-gateway   # thay tên repo cho từng service
   tag: "main"
   pullPolicy: IfNotPresent
 
