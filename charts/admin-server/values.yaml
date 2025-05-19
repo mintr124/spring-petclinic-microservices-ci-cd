@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: mintr124/visits-service   # thay tên repo cho từng service
+  repository: mintr124/admin-service   # thay tên repo cho từng service
   tag: "main"
   pullPolicy: IfNotPresent
 
