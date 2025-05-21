@@ -7,7 +7,8 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: 8761
       targetPort: 8761
+      protocol: TCP
   selector:
     app: {{ include "discovery-server.name" . }}
