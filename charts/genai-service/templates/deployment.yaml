@@ -20,5 +20,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker,mysql"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
