@@ -4,14 +4,7 @@ spring:
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
 
-eureka:
-  client:
-    register-with-eureka: false      # Vì đây là Eureka Server nên không tự đăng ký chính nó
-    fetch-registry: false            # Eureka Server không cần lấy danh sách registry
-  server:
-    enable-self-preservation: false # Tắt self-preservation (tùy chọn)
-  
-# Giữ lại phần log
+# Avoid some debugging logs at startup
 logging:
   level:
     org:
@@ -24,9 +17,6 @@ spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://config-server:8888
+    import: configserver:http://config-server:8888  
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+
