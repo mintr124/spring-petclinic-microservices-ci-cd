@@ -21,8 +21,6 @@ spec:
           ports:
             - containerPort: 8761
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "docker"
             - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
               value: "false"
             - name: EUREKA_CLIENT_FETCH_REGISTRY
