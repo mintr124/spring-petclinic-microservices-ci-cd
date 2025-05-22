@@ -23,13 +23,15 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "docker,mysql"
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-              value: http://discovery-server:8761/eureka/
-            - name: EUREKA_CLIENT_REGISTER_WITH_EUREKA
-              value: "true"
-            - name: EUREKA_CLIENT_FETCH_REGISTRY
-              value: "true"
             - name: SPRING_APPLICATION_NAME
               value: {{ .Values.service.name | quote }}
+            - name: SPRING_CLOUD_DISCOVERY_ENABLED
+              value: "true"
+            - name: SPRING_CLOUD_EUREKA_CLIENT_REGISTER_WITH_EUREKA
+              value: "true"
+            - name: SPRING_CLOUD_EUREKA_CLIENT_FETCH_REGISTRY
+              value: "true"
+            - name: SPRING_CLOUD_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://discovery-server:8761/eureka/
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
