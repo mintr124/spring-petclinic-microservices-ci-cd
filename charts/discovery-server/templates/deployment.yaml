@@ -27,9 +27,10 @@ spec:
               value: "false"
             - name: EUREKA_CLIENT_FETCH_REGISTRY
               value: "false"
-            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: SPRING_CLOUD_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://{{ include "discovery-server.fullname" . }}:8761/eureka/"
             - name: CONFIG_SERVER_URL
               value: "http://config-server:8888"
+            
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
