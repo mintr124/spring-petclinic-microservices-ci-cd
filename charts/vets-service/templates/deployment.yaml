@@ -27,7 +27,7 @@ spec:
               value: {{ .Values.service.name | quote }}
             - name: EUREKA_CLIENT_HEALTHCHECK_ENABLED
               value: "true"
-            - name: EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE
+            - name: EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE
               value: "http://discovery-server:8761/eureka/"
             - name: EUREKA_INSTANCE_PREFER-IP-ADDRESS
               value: "false"
