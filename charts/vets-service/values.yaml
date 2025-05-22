@@ -9,6 +9,9 @@ service:
   type: NodePort
   port: 80
 
+eureka:
+  serviceUrl: "http://discovery-server:8761/eureka/"
+
 resources: {}
 
 nodeSelector: {}
