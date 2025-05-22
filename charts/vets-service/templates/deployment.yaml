@@ -23,5 +23,9 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "docker,mysql"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: {{ .Values.eureka.serviceUrl | quote }}
+            - name: SPRING_APPLICATION_NAME
+              value: {{ .Values.service.name | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
