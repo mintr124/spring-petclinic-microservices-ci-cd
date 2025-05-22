@@ -8,6 +8,11 @@ spring:
   profiles:
     active: production
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+
 ---
 spring:
   config:
