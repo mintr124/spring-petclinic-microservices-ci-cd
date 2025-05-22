@@ -25,11 +25,11 @@ spec:
             #   value: "docker,mysql"
             - name: SPRING_APPLICATION_NAME
               value: {{ .Values.service.name | quote }}
-            - name: SPRING_CLOUD_EUREKA_CLIENT_HEALTHCHECK_ENABLED
+            - name: EUREKA_CLIENT_HEALTHCHECK_ENABLED
               value: "true"
-            - name: SPRING_CLOUD_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://discovery-server:8761/eureka/"
-            - name: SPRING_CLOUD_EUREKA_INSTANCE_PREFERIPADDRESS
+            - name: EUREKA_INSTANCE_PREFERIPADDRESS
               value: "false"
             - name: EUREKA_INSTANCE_METADATAMAP_INSTANCEID
               value: "${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${random.value}}}"
