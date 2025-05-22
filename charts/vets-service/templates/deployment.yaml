@@ -21,8 +21,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            # - name: SPRING_PROFILES_ACTIVE
-            #   value: "docker,mysql"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "docker,mysql"
             - name: SPRING_APPLICATION_NAME
               value: {{ .Values.service.name | quote }}
             - name: EUREKA_CLIENT_HEALTHCHECK_ENABLED
