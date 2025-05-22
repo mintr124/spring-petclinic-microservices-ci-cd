@@ -21,15 +21,15 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "docker,mysql"
+            # - name: SPRING_PROFILES_ACTIVE
+            #   value: "docker,mysql"
             - name: SPRING_APPLICATION_NAME
               value: {{ .Values.service.name | quote }}
-            - name: EUREKA_CLIENT_HEALTHCHECK_ENABLED
+            - name: SPRING_CLOUD_EUREKA_CLIENT_HEALTHCHECK_ENABLED
               value: "true"
-            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            - name: SPRING_CLOUD_EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
               value: "http://discovery-server:8761/eureka/"
-            - name: EUREKA_INSTANCE_PREFERIPADDRESS
+            - name: SPRING_CLOUD_EUREKA_INSTANCE_PREFERIPADDRESS
               value: "false"
             - name: EUREKA_INSTANCE_METADATAMAP_INSTANCEID
               value: "${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${random.value}}}"
