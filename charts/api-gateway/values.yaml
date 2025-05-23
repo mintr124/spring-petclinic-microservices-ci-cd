@@ -6,6 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  name: "api-gateway"
   type: NodePort
   port: 8080
 
