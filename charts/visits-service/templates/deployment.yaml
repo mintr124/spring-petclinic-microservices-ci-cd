@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "visits-service.fullname" . }}
+  name: {{ include "visits-service.name" . }}
   labels:
     app: {{ include "visits-service.name" . }}
 spec:
