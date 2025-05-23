@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "discovery-server.fullname" . }}
+  name: {{ include "discovery-server.name" . }}
   labels:
     app: {{ include "discovery-server.name" . }}
 spec:
