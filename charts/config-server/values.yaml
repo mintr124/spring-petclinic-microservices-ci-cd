@@ -6,6 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  name: "config-server"
   type: NodePort
   port: 8888
 
