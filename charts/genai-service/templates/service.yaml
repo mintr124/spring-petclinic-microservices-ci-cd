@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "genai-service.fullname" . }}
+  name: {{ include "genai-service.name" . }}
   labels:
     app: {{ include "genai-service.name" . }}
 spec:
