@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "config-server.fullname" . }}
+  name: {{ include "config-server.name" . }}
   labels:
     app: {{ include "config-server.name" . }}
 spec:
