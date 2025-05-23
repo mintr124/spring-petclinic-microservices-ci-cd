@@ -6,6 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  name: "discovery-server"
   type: NodePort
   port: 8761
 
