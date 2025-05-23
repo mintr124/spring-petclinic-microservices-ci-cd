@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "visits-service.fullname" . }}
+  name: {{ include "visits-service.name" . }}
   labels:
     app: {{ include "visits-service.name" . }}
 spec:
