@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "vets-service.fullname" . }}
+  name: {{ include "vets-service.name" . }}
   labels:
     app: {{ include "vets-service.name" . }}
 spec:
