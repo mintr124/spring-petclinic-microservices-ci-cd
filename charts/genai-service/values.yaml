@@ -6,6 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  name: "genai-service"
   type: NodePort
   port: 80
 
