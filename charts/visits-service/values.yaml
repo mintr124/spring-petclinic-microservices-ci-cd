@@ -6,6 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  name: "visits-service"
   type: NodePort
   port: 80
 
