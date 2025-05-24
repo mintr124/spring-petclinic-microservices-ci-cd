@@ -6,10 +6,6 @@ import java.io.FileNotFoundException
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Branch to build (e.g: main or dev-vets-service)')
-    }
-
     environment {
         DOCKER_HUB_CREDENTIALS_ID = 'dockerhub-credentials'
         IMAGE_PREFIX = 'mintr124'
@@ -20,16 +16,14 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 script {
-                    echo "Checking out branch '${params.GIT_BRANCH}' for SCM"
+                    echo "Checking out branch '${env.GIT_BRANCH}' for SCM"
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: "*/${params.GIT_BRANCH}"]],
+                        branches: [[name: "*/${env.GIT_BRANCH}"]],
                         doGenerateSubmoduleConfigurations: false,
                         extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
                         userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
                     ])
-                    sh "git branch -a"
-                    sh "git log -1 --oneline"
                 }
             }
         }
@@ -37,27 +31,27 @@ pipeline {
         stage('Determine Build Logic and Tags') {
             steps {
                 script {
-                    echo "${params.GIT_BRANCH}"
+                    echo "${env.GIT_BRANCH}"
                     def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
                     def servicesToBuildAndTagsMap = [:]
 
-                    if (params.GIT_BRANCH == 'main') {
+                    if (env.GIT_BRANCH == 'main') {
                         echo "Main branch detected. Building all application services with tag 'main'."
                         appServices.each { svc ->
                             servicesToBuildAndTagsMap[svc] = 'main'
                         }
-                    } else if (params.GIT_BRANCH.startsWith('dev-')) {
-                        def changedService = params.GIT_BRANCH - "dev-"
+                    } else if (env.GIT_BRANCH.startsWith('dev-')) {
+                        def changedService = env.GIT_BRANCH - "dev-"
 
                         if (!appServices.contains(changedService)) {
-                            error "The 'dev-' branch '${params.GIT_BRANCH}' does not correspond to a known application service."
+                            error "The 'dev-' branch '${env.GIT_BRANCH}' does not correspond to a known application service."
                         }
 
                         def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        echo "Detected branch '${params.GIT_BRANCH}'. Building only ${changedService} with tag '${commitId}'."
+                        echo "Detected branch '${env.GIT_BRANCH}'. Building only ${changedService} with tag '${commitId}'."
                         servicesToBuildAndTagsMap[changedService] = commitId
                     } else {
-                        error "Invalid branch name: '${params.GIT_BRANCH}'. Please use 'main' or a 'dev-*' branch."
+                        error "Invalid branch name: '${env.GIT_BRANCH}'. Please use 'main' or a 'dev-*' branch."
                     }
 
                     echo "Services to build and tags determined: ${servicesToBuildAndTagsMap}"
