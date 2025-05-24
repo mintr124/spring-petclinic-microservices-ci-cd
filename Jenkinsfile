@@ -13,20 +13,20 @@ pipeline {
     }
     
     stages {
-        stage('Checkout Code') {
-            steps {
-                script {
-                    echo "Checking out branch '${env.GIT_BRANCH}' for SCM"
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "*/${env.GIT_BRANCH}"]],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
-                        userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
-                    ])
-                }
-            }
-        }
+        // stage('Checkout Code') {
+        //     steps {
+        //         script {
+        //             echo "Checking out branch '${env.GIT_BRANCH}' for SCM"
+        //             checkout([
+        //                 $class: 'GitSCM',
+        //                 branches: [[name: "*/${env.GIT_BRANCH}"]],
+        //                 doGenerateSubmoduleConfigurations: false,
+        //                 extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
+        //                 userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
+        //             ])
+        //         }
+        //     }
+        // }
 
         // stage('Determine Build Logic and Tags') {
         //     steps {
@@ -188,8 +188,9 @@ pipeline {
             steps {
                 script {
                     def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
-                    def nodeIP = "petclinic-dev" // Hoặc dùng lệnh lấy IP động nếu cần
+                    def nodeIP = "petclinic-dev" // Hoặc dùng IP thật nếu bạn muốn
                     def urls = []
+                    def htmlLinks = []
         
                     servicesOutput.each { line ->
                         def parts = line.tokenize()
@@ -199,14 +200,17 @@ pipeline {
         
                         if (type == "NodePort" && portMapping.contains(":")) {
                             def nodePort = portMapping.split(":")[1].split("/")[0]
-                            urls << "[${name}](https://${nodeIP}:${nodePort})"
+                            def url = "http://${nodeIP}:${nodePort}"
+                            urls << "${name} - ${url}"
+                            htmlLinks << """${name} - <a href="${url}">${url}</a>"""
                         }
                     }
         
-                    def description = urls.take(2).join(" | ") + " ... (${urls.size()} services)"
-                    currentBuild.description = description
                     echo "📡 Accessible Service URLs:"
                     urls.each { echo it }
+        
+                    // Gán mô tả vào build description (HTML)
+                    currentBuild.description = htmlLinks.join("<br>")
                 }
             }
         }
