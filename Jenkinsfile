@@ -33,6 +33,7 @@ pipeline {
         stage('Determine Build Logic and Tags') {
             steps {
                 script {
+                    echo "${params.GIT_BRANCH}"
                     def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
                     def servicesToBuildAndTagsMap = [:]
 
