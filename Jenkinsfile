@@ -12,7 +12,6 @@ pipeline {
         K8S_NAMESPACE = 'default'
     }
     
-
     stages {
         stage('Checkout Code') {
             steps {
