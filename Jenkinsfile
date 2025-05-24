@@ -112,6 +112,7 @@ pipeline {
             steps {
                 script {
                     def servicesToBuildAndTags = [:]
+                    echo "DEBUG:1"
                     try {
                         unstash 'servicesToBuildAndTags'
                         def jsonString = readFile('servicesToBuildAndTags.json')
@@ -120,7 +121,7 @@ pipeline {
                         echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
                         error "Failed to retrieve service build info."
                     }
-
+                    echo "DEBUG:1"
                     if (servicesToBuildAndTags.isEmpty()) {
                         echo "No deployment information found. Skipping deployment."
                         return
