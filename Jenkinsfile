@@ -11,6 +11,7 @@ pipeline {
         IMAGE_PREFIX = 'mintr124'
         K8S_NAMESPACE = 'default'
     }
+    
 
     stages {
         stage('Checkout Code') {
