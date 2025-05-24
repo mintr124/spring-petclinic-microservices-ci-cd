@@ -13,200 +13,199 @@ pipeline {
     }
     
     stages {
-        // stage('Checkout Code') {
-        //     steps {
-        //         script {
-        //             echo "Checking out branch '${env.GIT_BRANCH}' for SCM"
-        //             checkout([
-        //                 $class: 'GitSCM',
-        //                 branches: [[name: "*/${env.GIT_BRANCH}"]],
-        //                 doGenerateSubmoduleConfigurations: false,
-        //                 extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
-        //                 userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
-        //             ])
-        //         }
-        //     }
-        // }
+        stage('Checkout Code') {
+            steps {
+                script {
+                    echo "Checking out branch '${env.GIT_BRANCH}' for SCM"
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${env.GIT_BRANCH}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
+                        userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
+                    ])
+                }
+            }
+        }
 
-        // stage('Determine Build Logic and Tags') {
-        //     steps {
-        //         script {
-        //             echo "${env.GIT_BRANCH}"
-        //             def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
-        //             def servicesToBuildAndTagsMap = [:]
+        stage('Determine Build Logic and Tags') {
+            steps {
+                script {
+                    echo "${env.GIT_BRANCH}"
+                    def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
+                    def servicesToBuildAndTagsMap = [:]
 
-        //             if (env.GIT_BRANCH == 'main') {
-        //                 echo "Main branch detected. Building all application services with tag 'main'."
-        //                 appServices.each { svc ->
-        //                     servicesToBuildAndTagsMap[svc] = 'main'
-        //                 }
-        //             } else if (env.GIT_BRANCH.startsWith('dev-')) {
-        //                 def changedService = env.GIT_BRANCH - "dev-"
+                    if (env.GIT_BRANCH == 'main') {
+                        echo "Main branch detected. Building all application services with tag 'main'."
+                        appServices.each { svc ->
+                            servicesToBuildAndTagsMap[svc] = 'main'
+                        }
+                    } else if (env.GIT_BRANCH.startsWith('dev-')) {
+                        def changedService = env.GIT_BRANCH - "dev-"
 
-        //                 if (!appServices.contains(changedService)) {
-        //                     error "The 'dev-' branch '${env.GIT_BRANCH}' does not correspond to a known application service."
-        //                 }
+                        if (!appServices.contains(changedService)) {
+                            error "The 'dev-' branch '${env.GIT_BRANCH}' does not correspond to a known application service."
+                        }
 
-        //                 def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-        //                 echo "Detected branch '${env.GIT_BRANCH}'. Building only ${changedService} with tag '${commitId}'."
-        //                 servicesToBuildAndTagsMap[changedService] = commitId
-        //             } else {
-        //                 error "Invalid branch name: '${env.GIT_BRANCH}'. Please use 'main' or a 'dev-*' branch."
-        //             }
+                        def commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        echo "Detected branch '${env.GIT_BRANCH}'. Building only ${changedService} with tag '${commitId}'."
+                        servicesToBuildAndTagsMap[changedService] = commitId
+                    } else {
+                        error "Invalid branch name: '${env.GIT_BRANCH}'. Please use 'main' or a 'dev-*' branch."
+                    }
 
-        //             echo "Services to build and tags determined: ${servicesToBuildAndTagsMap}"
+                    echo "Services to build and tags determined: ${servicesToBuildAndTagsMap}"
 
-        //             def jsonString = JsonOutput.toJson(servicesToBuildAndTagsMap)
-        //             writeFile file: 'servicesToBuildAndTags.json', text: jsonString
-        //             stash name: 'servicesToBuildAndTags', includes: 'servicesToBuildAndTags.json'
-        //         }
-        //     }
-        // }
+                    def jsonString = JsonOutput.toJson(servicesToBuildAndTagsMap)
+                    writeFile file: 'servicesToBuildAndTags.json', text: jsonString
+                    stash name: 'servicesToBuildAndTags', includes: 'servicesToBuildAndTags.json'
+                }
+            }
+        }
 
-        // stage('Build & Push All Service Images') {
-        //     steps {
-        //         script {
-        //             def servicesToBuildAndTags = [:]
-        //             try {
-        //                 unstash 'servicesToBuildAndTags'
-        //                 def jsonString = readFile('servicesToBuildAndTags.json')
-        //                 servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
-        //             } catch (FileNotFoundException e) {
-        //                 echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
-        //                 error "Failed to retrieve service build info."
-        //             }
+        stage('Build & Push All Service Images') {
+            steps {
+                script {
+                    def servicesToBuildAndTags = [:]
+                    try {
+                        unstash 'servicesToBuildAndTags'
+                        def jsonString = readFile('servicesToBuildAndTags.json')
+                        servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
+                    } catch (FileNotFoundException e) {
+                        echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
+                        error "Failed to retrieve service build info."
+                    }
 
-        //             if (servicesToBuildAndTags.isEmpty()) {
-        //                 echo "No services to build. Skipping build stage."
-        //                 return
-        //             }
+                    if (servicesToBuildAndTags.isEmpty()) {
+                        echo "No services to build. Skipping build stage."
+                        return
+                    }
 
-        //             withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-        //                 sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
 
-        //                 servicesToBuildAndTags.each { serviceName, buildTag ->
-        //                     def repoDir = "spring-petclinic-${serviceName}"
-        //                     def fullImageName = "${env.IMAGE_PREFIX}/${serviceName}:${buildTag}"
+                        servicesToBuildAndTags.each { serviceName, buildTag ->
+                            def repoDir = "spring-petclinic-${serviceName}"
+                            def fullImageName = "${env.IMAGE_PREFIX}/${serviceName}:${buildTag}"
 
-        //                     echo "--- Building ${serviceName} with Maven profile 'buildDocker' ---"
-        //                     dir(repoDir) {
-        //                         echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
-        //                         sh "mvn clean install -DskipTests -P buildDocker"
+                            echo "--- Building ${serviceName} with Maven profile 'buildDocker' ---"
+                            dir(repoDir) {
+                                echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
+                                sh "mvn clean install -DskipTests -P buildDocker"
 
-        //                         sh "docker tag springcommunity/spring-petclinic-${serviceName}:latest ${fullImageName}"
-        //                         echo "Pushing Docker image ${fullImageName} to Docker Hub..."
-        //                         sh "docker push ${fullImageName}"
-        //                     }
-        //                     echo "${serviceName} built and pushed with tag: ${buildTag}"
-        //                 }
-        //                 sh "docker logout"
-        //                 echo "All relevant service images built and pushed."
-        //             }
-        //         }
-        //     }
-        // }
+                                sh "docker tag springcommunity/spring-petclinic-${serviceName}:latest ${fullImageName}"
+                                echo "Pushing Docker image ${fullImageName} to Docker Hub..."
+                                sh "docker push ${fullImageName}"
+                            }
+                            echo "${serviceName} built and pushed with tag: ${buildTag}"
+                        }
+                        sh "docker logout"
+                        echo "All relevant service images built and pushed."
+                    }
+                }
+            }
+        }
 
-        // stage('Deploy to Kubernetes with Helm') {
-        //     steps {
-        //         script {
-        //             def servicesToBuildAndTags = [:]
-        //             try {
-        //                 unstash 'servicesToBuildAndTags'
-        //                 def jsonString = readFile('servicesToBuildAndTags.json')
-        //                 servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
-        //             } catch (FileNotFoundException e) {
-        //                 echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
-        //                 error "Failed to retrieve service build info."
-        //             }
-        //             if (servicesToBuildAndTags.isEmpty()) {
-        //                 echo "No deployment information found. Skipping deployment."
-        //                 return
-        //             }
+        stage('Deploy to Kubernetes with Helm') {
+            steps {
+                script {
+                    def servicesToBuildAndTags = [:]
+                    try {
+                        unstash 'servicesToBuildAndTags'
+                        def jsonString = readFile('servicesToBuildAndTags.json')
+                        servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
+                    } catch (FileNotFoundException e) {
+                        echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
+                        error "Failed to retrieve service build info."
+                    }
+                    if (servicesToBuildAndTags.isEmpty()) {
+                        echo "No deployment information found. Skipping deployment."
+                        return
+                    }
 
-        //             def foundational = ['config-server', 'discovery-server', 'api-gateway']
-        //             foundational.each { svc ->
-        //                 servicesToBuildAndTags[svc] = "main" // Luôn gán tag là 'main' cho các dịch vụ này
-        //                 echo "Deployment: Using 'main' tag for foundational service '${svc}'."
-        //             }
+                    def foundational = ['config-server', 'discovery-server', 'api-gateway']
+                    foundational.each { svc ->
+                        servicesToBuildAndTags[svc] = "main" // Luôn gán tag là 'main' cho các dịch vụ này
+                        echo "Deployment: Using 'main' tag for foundational service '${svc}'."
+                    }
 
-        //             // Triển khai các dịch vụ nền tảng trước
-        //             def foundationalOrder = ['config-server', 'discovery-server', 'api-gateway']
-        //             foundationalOrder.each { svc ->
-        //                 if (servicesToBuildAndTags.containsKey(svc)) {
-        //                     def tag = servicesToBuildAndTags[svc] // Sẽ là 'main' do logic ở stage trước
-        //                     def chartPath = "charts/${svc}"
-        //                     echo "Deploying foundational service ${svc} with tag ${tag}..."
-        //                     sh """
-        //                         helm upgrade --install ${svc} ${chartPath} \\
-        //                             --namespace ${env.K8S_NAMESPACE} \\
-        //                             --set image.repository=${env.IMAGE_PREFIX}/${svc} \\
-        //                             --set image.tag=${tag} \\
-        //                             --set image.pullPolicy=Always \\
-        //                             --wait
-        //                     """
-        //                 }
-        //             }
+                    // Triển khai các dịch vụ nền tảng trước
+                    def foundationalOrder = ['config-server', 'discovery-server', 'api-gateway']
+                    foundationalOrder.each { svc ->
+                        if (servicesToBuildAndTags.containsKey(svc)) {
+                            def tag = servicesToBuildAndTags[svc] // Sẽ là 'main' do logic ở stage trước
+                            def chartPath = "charts/${svc}"
+                            echo "Deploying foundational service ${svc} with tag ${tag}..."
+                            sh """
+                                helm upgrade --install ${svc} ${chartPath} \\
+                                    --namespace ${env.K8S_NAMESPACE} \\
+                                    --set image.repository=${env.IMAGE_PREFIX}/${svc} \\
+                                    --set image.tag=${tag} \\
+                                    --set image.pullPolicy=Always \\
+                                    --wait
+                            """
+                        }
+                    }
 
-        //             def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
-        //             appServices.each { svc ->
-        //                 if (!servicesToBuildAndTags.containsKey(svc)) {
-        //                     servicesToBuildAndTags[svc] = "main" 
-        //                     echo "Deployment: Using 'main' tag for foundational service '${svc}'."
-        //                 }
-        //             }
+                    def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
+                    appServices.each { svc ->
+                        if (!servicesToBuildAndTags.containsKey(svc)) {
+                            servicesToBuildAndTags[svc] = "main" 
+                            echo "Deployment: Using 'main' tag for foundational service '${svc}'."
+                        }
+                    }
 
-        //             echo "Waiting 15 seconds for foundational services to stabilize..."
-        //             sh "sleep 15"
+                    echo "Waiting 15 seconds for foundational services to stabilize..."
+                    sh "sleep 15"
 
-        //             // Triển khai các dịch vụ ứng dụng
+                    // Triển khai các dịch vụ ứng dụng
                     
-        //             appServices.each { svc ->
-        //                 if (servicesToBuildAndTags.containsKey(svc)) {
-        //                     def tag = servicesToBuildAndTags[svc]
-        //                     if (tag != "main") {
-        //                         tag = tag.replaceAll(/[\r\n]+/, '').trim()
-        //                     }
-        //                     def chartPath = "charts/${svc}"
-        //                     echo "Deploying foundational service ${svc} with tag ${tag}..."
-        //                     def helmCommand = "helm upgrade --install ${svc} ${chartPath} " +
-        //                                       "--namespace ${env.K8S_NAMESPACE} " +
-        //                                       "--set image.repository=${env.IMAGE_PREFIX}/${svc} " +
-        //                                       "--set image.tag=${tag} " +
-        //                                       "--set image.pullPolicy=Always " +
-        //                                       "--wait"
-        //                     echo "Deploying application service ${svc} with tag ${tag}..."
-        //                     echo "Executing Helm command: ${helmCommand}"
-        //                     sh helmCommand
-        //                 }
-        //             }
-        //             echo "All services deployed successfully."
-        //         }
-        //     }
-        // }
+                    appServices.each { svc ->
+                        if (servicesToBuildAndTags.containsKey(svc)) {
+                            def tag = servicesToBuildAndTags[svc]
+                            if (tag != "main") {
+                                tag = tag.replaceAll(/[\r\n]+/, '').trim()
+                            }
+                            def chartPath = "charts/${svc}"
+                            echo "Deploying foundational service ${svc} with tag ${tag}..."
+                            def helmCommand = "helm upgrade --install ${svc} ${chartPath} " +
+                                              "--namespace ${env.K8S_NAMESPACE} " +
+                                              "--set image.repository=${env.IMAGE_PREFIX}/${svc} " +
+                                              "--set image.tag=${tag} " +
+                                              "--set image.pullPolicy=Always " +
+                                              "--wait"
+                            echo "Deploying application service ${svc} with tag ${tag}..."
+                            echo "Executing Helm command: ${helmCommand}"
+                            sh helmCommand
+                        }
+                    }
+                    echo "All services deployed successfully."
+                }
+            }
+        }
 
         stage('Show Service URLs') {
             steps {
                 script {
-                    // def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
-                    // def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
-                    // def urls = []
+                    def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
+                    def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
+                    def urls = []
         
-                    // servicesOutput.each { line ->
-                    //     def parts = line.tokenize()
-                    //     def name = parts[0]
-                    //     def type = parts[1]
-                    //     def portMapping = parts[4]
+                    servicesOutput.each { line ->
+                        def parts = line.tokenize()
+                        def name = parts[0]
+                        def type = parts[1]
+                        def portMapping = parts[4]
         
-                    //     if (type == "NodePort" && portMapping.contains(":")) {
-                    //         def nodePort = portMapping.split(":")[1].split("/")[0]
-                    //         urls << "[${name}](https://${nodeIP}:${nodePort})"
-                    //     }
-                    // }
+                        if (type == "NodePort" && portMapping.contains(":")) {
+                            def nodePort = portMapping.split(":")[1].split("/")[0]
+                            urls << "[${name}](https://${nodeIP}:${nodePort})"
+                        }
+                    }
         
-                    // def description = urls.join("  \n") 
-                    // currentBuild.description = description
-                    // echo "Build description set to:\n${description}"
-                    currentBuild.description = "Build description [ABC](https://jenkins.io/)"
+                    def description = urls.join("  \n") 
+                    currentBuild.description = description
+                    echo "Build description set to:\n${description}"
                 }
             }
         }
