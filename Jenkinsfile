@@ -102,9 +102,6 @@ pipeline {
                         sh "docker logout"
                         echo "All relevant service images built and pushed."
                     }
-                    def jsonString = JsonOutput.toJson(servicesToBuildAndTagsMap)
-                    writeFile file: 'servicesToBuildAndTags.json', text: jsonString
-                    stash name: 'servicesToBuildAndTags', includes: 'servicesToBuildAndTags.json'
                 }
             }
         }
