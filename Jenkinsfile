@@ -111,6 +111,7 @@ pipeline {
         stage('Deploy to Kubernetes with Helm') {
             steps {
                 script {
+                    echo "DEBUG:0"
                     def servicesToBuildAndTags = [:]
                     echo "DEBUG:1"
                     try {
