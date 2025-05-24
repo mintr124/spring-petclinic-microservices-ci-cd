@@ -187,10 +187,10 @@ pipeline {
         stage('Show Service URLs') {
             steps {
                 script {
-                    def nodeIP = sh(script: "kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}'", returnStdout: true).trim()
         
                     def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
                     def urls = []
+                    def nodeIP = "petclinic-dev"
         
                     servicesOutput.each { line ->
                         def parts = line.tokenize()
@@ -200,7 +200,7 @@ pipeline {
         
                         if (type == "NodePort" && portMapping.contains(":")) {
                             def nodePort = portMapping.split(":")[1].split("/")[0]
-                            urls << String.format("%-20s - http://%s:%s", name, nodeIP, nodePort)
+                            urls << String.format("%-20s - http://petclinic-dev:%s", name, nodePort)
                         }
                     }
         
