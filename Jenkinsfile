@@ -93,7 +93,7 @@ pipeline {
                                 echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
                                 sh "mvn clean install -DskipTests -P buildDocker"
 
-                                sh "docker tag community/spring-petclinic-${serviceName}:latest ${fullImageName}"
+                                sh "docker tag springcommunity/spring-petclinic-${serviceName}:latest ${fullImageName}"
                                 echo "Pushing Docker image ${fullImageName} to Docker Hub..."
                                 sh "docker push ${fullImageName}"
                             }
