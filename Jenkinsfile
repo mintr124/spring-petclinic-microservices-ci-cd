@@ -101,7 +101,7 @@ pipeline {
                     //     }
                     //     sh "docker logout"
                     //     echo "All relevant service images built and pushed."
-                    }
+                    // }
                 }
             }
         }
@@ -109,77 +109,77 @@ pipeline {
         stage('Deploy to Kubernetes with Helm') {
             steps {
                 script {
-                    def servicesToBuildAndTags = [:]
-                    try {
-                        unstash 'servicesToBuildAndTags'
-                        def jsonString = readFile('servicesToBuildAndTags.json')
-                        servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
-                    } catch (FileNotFoundException e) {
-                        echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
-                        error "Failed to retrieve service build info."
-                    }
-                    if (servicesToBuildAndTags.isEmpty()) {
-                        echo "No deployment information found. Skipping deployment."
-                        return
-                    }
+                //     def servicesToBuildAndTags = [:]
+                //     try {
+                //         unstash 'servicesToBuildAndTags'
+                //         def jsonString = readFile('servicesToBuildAndTags.json')
+                //         servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
+                //     } catch (FileNotFoundException e) {
+                //         echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
+                //         error "Failed to retrieve service build info."
+                //     }
+                //     if (servicesToBuildAndTags.isEmpty()) {
+                //         echo "No deployment information found. Skipping deployment."
+                //         return
+                //     }
 
-                    def foundational = ['config-server', 'discovery-server', 'api-gateway']
-                    foundational.each { svc ->
-                        servicesToBuildAndTags[svc] = "main" // Luôn gán tag là 'main' cho các dịch vụ này
-                        echo "Deployment: Using 'main' tag for foundational service '${svc}'."
-                    }
+                //     def foundational = ['config-server', 'discovery-server', 'api-gateway']
+                //     foundational.each { svc ->
+                //         servicesToBuildAndTags[svc] = "main" // Luôn gán tag là 'main' cho các dịch vụ này
+                //         echo "Deployment: Using 'main' tag for foundational service '${svc}'."
+                //     }
 
-                    // Triển khai các dịch vụ nền tảng trước
-                    def foundationalOrder = ['config-server', 'discovery-server', 'api-gateway']
-                    foundationalOrder.each { svc ->
-                        if (servicesToBuildAndTags.containsKey(svc)) {
-                            def tag = servicesToBuildAndTags[svc] // Sẽ là 'main' do logic ở stage trước
-                            def chartPath = "charts/${svc}"
-                            echo "Deploying foundational service ${svc} with tag ${tag}..."
-                            sh """
-                                helm upgrade --install ${svc} ${chartPath} \\
-                                    --namespace ${env.K8S_NAMESPACE} \\
-                                    --set image.repository=${env.IMAGE_PREFIX}/${svc} \\
-                                    --set image.tag=${tag} \\
-                                    --set image.pullPolicy=Always \\
-                                    --wait
-                            """
-                        }
-                    }
+                //     // Triển khai các dịch vụ nền tảng trước
+                //     def foundationalOrder = ['config-server', 'discovery-server', 'api-gateway']
+                //     foundationalOrder.each { svc ->
+                //         if (servicesToBuildAndTags.containsKey(svc)) {
+                //             def tag = servicesToBuildAndTags[svc] // Sẽ là 'main' do logic ở stage trước
+                //             def chartPath = "charts/${svc}"
+                //             echo "Deploying foundational service ${svc} with tag ${tag}..."
+                //             sh """
+                //                 helm upgrade --install ${svc} ${chartPath} \\
+                //                     --namespace ${env.K8S_NAMESPACE} \\
+                //                     --set image.repository=${env.IMAGE_PREFIX}/${svc} \\
+                //                     --set image.tag=${tag} \\
+                //                     --set image.pullPolicy=Always \\
+                //                     --wait
+                //             """
+                //         }
+                //     }
 
-                    def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
-                    appServices.each { svc ->
-                        if (!servicesToBuildAndTags.containsKey(svc)) {
-                            servicesToBuildAndTags[svc] = "main" 
-                            echo "Deployment: Using 'main' tag for foundational service '${svc}'."
-                        }
-                    }
+                //     def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
+                //     appServices.each { svc ->
+                //         if (!servicesToBuildAndTags.containsKey(svc)) {
+                //             servicesToBuildAndTags[svc] = "main" 
+                //             echo "Deployment: Using 'main' tag for foundational service '${svc}'."
+                //         }
+                //     }
 
-                    echo "Waiting 15 seconds for foundational services to stabilize..."
-                    sh "sleep 15"
+                //     echo "Waiting 15 seconds for foundational services to stabilize..."
+                //     sh "sleep 15"
 
-                    // Triển khai các dịch vụ ứng dụng
+                //     // Triển khai các dịch vụ ứng dụng
                     
-                    appServices.each { svc ->
-                        if (servicesToBuildAndTags.containsKey(svc)) {
-                            def tag = servicesToBuildAndTags[svc]
-                            if (tag != "main") {
-                                tag = tag.replaceAll(/[\r\n]+/, '').trim()
-                            }
-                            def chartPath = "charts/${svc}"
-                            echo "Deploying foundational service ${svc} with tag ${tag}..."
-                            def helmCommand = "helm upgrade --install ${svc} ${chartPath} " +
-                                              "--namespace ${env.K8S_NAMESPACE} " +
-                                              "--set image.repository=${env.IMAGE_PREFIX}/${svc} " +
-                                              "--set image.tag=${tag} " +
-                                              "--set image.pullPolicy=Always " +
-                                              "--wait"
-                            echo "Deploying application service ${svc} with tag ${tag}..."
-                            echo "Executing Helm command: ${helmCommand}"
-                            sh helmCommand
-                        }
-                    }
-                    echo "All services deployed successfully."
+                //     appServices.each { svc ->
+                //         if (servicesToBuildAndTags.containsKey(svc)) {
+                //             def tag = servicesToBuildAndTags[svc]
+                //             if (tag != "main") {
+                //                 tag = tag.replaceAll(/[\r\n]+/, '').trim()
+                //             }
+                //             def chartPath = "charts/${svc}"
+                //             echo "Deploying foundational service ${svc} with tag ${tag}..."
+                //             def helmCommand = "helm upgrade --install ${svc} ${chartPath} " +
+                //                               "--namespace ${env.K8S_NAMESPACE} " +
+                //                               "--set image.repository=${env.IMAGE_PREFIX}/${svc} " +
+                //                               "--set image.tag=${tag} " +
+                //                               "--set image.pullPolicy=Always " +
+                //                               "--wait"
+                //             echo "Deploying application service ${svc} with tag ${tag}..."
+                //             echo "Executing Helm command: ${helmCommand}"
+                //             sh helmCommand
+                //         }
+                //     }
+                //     echo "All services deployed successfully."
                 }
             }
         }
