@@ -3,25 +3,6 @@ import groovy.json.JsonSlurper
 import java.util.HashMap
 import java.io.FileNotFoundException
 
-@NonCPS
-def getLatestDockerTag(imagePrefix, serviceName) {
-    try {
-        def response = sh(
-            script: "curl -s https://registry.hub.docker.com/v2/repositories/${imagePrefix}/${serviceName}/tags?page_size=1 | jq -r '.results[0].name'",
-            returnStdout: true
-        ).trim()
-        if (!response || response == 'null') {
-            echo "Warning: Could not get latest tag for service ${serviceName} from Docker Hub. Defaulting to 'main'."
-            return "main"
-        }
-        echo "Latest tag for ${serviceName} is ${response}"
-        return response
-    } catch (Exception e) {
-        echo "Error getting latest Docker Hub tag for ${serviceName}: ${e.message}. Defaulting to 'main'."
-        return "main"
-    }
-}
-
 pipeline {
     agent any
 
