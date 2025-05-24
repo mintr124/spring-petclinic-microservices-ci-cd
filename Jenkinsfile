@@ -93,6 +93,7 @@ pipeline {
                                 echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
                                 sh "mvn clean install -DskipTests -P buildDocker"
 
+                                sh "docker tag community/spring-petclinic-${serviceName}:latest ${fullImageName}"
                                 echo "Pushing Docker image ${fullImageName} to Docker Hub..."
                                 sh "docker push ${fullImageName}"
                             }
@@ -111,9 +112,7 @@ pipeline {
         stage('Deploy to Kubernetes with Helm') {
             steps {
                 script {
-                    echo "DEBUG:0"
                     def servicesToBuildAndTags = [:]
-                    echo "DEBUG:1"
                     try {
                         unstash 'servicesToBuildAndTags'
                         def jsonString = readFile('servicesToBuildAndTags.json')
@@ -122,7 +121,6 @@ pipeline {
                         echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
                         error "Failed to retrieve service build info."
                     }
-                    echo "DEBUG:1"
                     if (servicesToBuildAndTags.isEmpty()) {
                         echo "No deployment information found. Skipping deployment."
                         return
