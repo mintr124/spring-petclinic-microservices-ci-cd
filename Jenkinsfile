@@ -206,7 +206,7 @@ pipeline {
                     // def description = urls.join("  \n") 
                     // currentBuild.description = description
                     // echo "Build description set to:\n${description}"
-                    currentBuild.description = "Build description: [ABC](https://jenkins.io/)"
+                    currentBuild.description = "Build description [ABC](https://jenkins.io/)"
                 }
             }
         }
