@@ -187,25 +187,26 @@ pipeline {
         stage('Show Service URLs') {
             steps {
                 script {
-                    def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
-                    def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
-                    def urls = []
+                    // def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
+                    // def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
+                    // def urls = []
         
-                    servicesOutput.each { line ->
-                        def parts = line.tokenize()
-                        def name = parts[0]
-                        def type = parts[1]
-                        def portMapping = parts[4]
+                    // servicesOutput.each { line ->
+                    //     def parts = line.tokenize()
+                    //     def name = parts[0]
+                    //     def type = parts[1]
+                    //     def portMapping = parts[4]
         
-                        if (type == "NodePort" && portMapping.contains(":")) {
-                            def nodePort = portMapping.split(":")[1].split("/")[0]
-                            urls << "[${name}](https://${nodeIP}:${nodePort})"
-                        }
-                    }
+                    //     if (type == "NodePort" && portMapping.contains(":")) {
+                    //         def nodePort = portMapping.split(":")[1].split("/")[0]
+                    //         urls << "[${name}](https://${nodeIP}:${nodePort})"
+                    //     }
+                    // }
         
-                    def description = urls.join("  \n") 
-                    currentBuild.description = description
-                    echo "Build description set to:\n${description}"
+                    // def description = urls.join("  \n") 
+                    // currentBuild.description = description
+                    // echo "Build description set to:\n${description}"
+                    currentBuild.description = "Build description: [ABC](https://jenkins.io/)"
                 }
             }
         }
