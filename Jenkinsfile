@@ -203,7 +203,7 @@ pipeline {
                         }
                     }
         
-                    def description = urls.join("<br>")  // Dùng <br> để xuống dòng trong HTML/Markdown của Jenkins
+                    def description = urls.take(2).join(" | ") + " ... (${urls.size()} services)"
                     currentBuild.description = description
                     echo "📡 Accessible Service URLs:"
                     urls.each { echo it }
