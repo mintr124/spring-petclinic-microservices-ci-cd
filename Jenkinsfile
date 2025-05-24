@@ -67,40 +67,40 @@ pipeline {
             steps {
                 script {
                     def servicesToBuildAndTags = [:]
-                    try {
-                        unstash 'servicesToBuildAndTags'
-                        def jsonString = readFile('servicesToBuildAndTags.json')
-                        servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
-                    } catch (FileNotFoundException e) {
-                        echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
-                        error "Failed to retrieve service build info."
-                    }
+                    // try {
+                    //     unstash 'servicesToBuildAndTags'
+                    //     def jsonString = readFile('servicesToBuildAndTags.json')
+                    //     servicesToBuildAndTags = new HashMap(new JsonSlurper().parseText(jsonString))
+                    // } catch (FileNotFoundException e) {
+                    //     echo "Error: servicesToBuildAndTags.json not found. This indicates an issue in the previous stage or pipeline state."
+                    //     error "Failed to retrieve service build info."
+                    // }
 
-                    if (servicesToBuildAndTags.isEmpty()) {
-                        echo "No services to build. Skipping build stage."
-                        return
-                    }
+                    // if (servicesToBuildAndTags.isEmpty()) {
+                    //     echo "No services to build. Skipping build stage."
+                    //     return
+                    // }
 
-                    withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+                    // withCredentials([usernamePassword(credentialsId: env.DOCKER_HUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    //     sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
 
-                        servicesToBuildAndTags.each { serviceName, buildTag ->
-                            def repoDir = "spring-petclinic-${serviceName}"
-                            def fullImageName = "${env.IMAGE_PREFIX}/${serviceName}:${buildTag}"
+                    //     servicesToBuildAndTags.each { serviceName, buildTag ->
+                    //         def repoDir = "spring-petclinic-${serviceName}"
+                    //         def fullImageName = "${env.IMAGE_PREFIX}/${serviceName}:${buildTag}"
 
-                            echo "--- Building ${serviceName} with Maven profile 'buildDocker' ---"
-                            dir(repoDir) {
-                                echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
-                                sh "mvn clean install -DskipTests -P buildDocker"
+                    //         echo "--- Building ${serviceName} with Maven profile 'buildDocker' ---"
+                    //         dir(repoDir) {
+                    //             echo "Executing: mvn clean install -DskipTests -P buildDocker for ${serviceName}..."
+                    //             sh "mvn clean install -DskipTests -P buildDocker"
 
-                                sh "docker tag springcommunity/spring-petclinic-${serviceName}:latest ${fullImageName}"
-                                echo "Pushing Docker image ${fullImageName} to Docker Hub..."
-                                sh "docker push ${fullImageName}"
-                            }
-                            echo "${serviceName} built and pushed with tag: ${buildTag}"
-                        }
-                        sh "docker logout"
-                        echo "All relevant service images built and pushed."
+                    //             sh "docker tag springcommunity/spring-petclinic-${serviceName}:latest ${fullImageName}"
+                    //             echo "Pushing Docker image ${fullImageName} to Docker Hub..."
+                    //             sh "docker push ${fullImageName}"
+                    //         }
+                    //         echo "${serviceName} built and pushed with tag: ${buildTag}"
+                    //     }
+                    //     sh "docker logout"
+                    //     echo "All relevant service images built and pushed."
                     }
                 }
             }
