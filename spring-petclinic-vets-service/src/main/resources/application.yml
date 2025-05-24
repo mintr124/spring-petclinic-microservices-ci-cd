@@ -12,6 +12,7 @@ spring:
       serviceUrl:
         defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-server:8761/eureka/}
 
+
 ---
 spring:
   config:
