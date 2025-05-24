@@ -23,9 +23,13 @@ pipeline {
                     echo "Checking out branch '${params.GIT_BRANCH}' for SCM"
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: "refs/heads/${params.GIT_BRANCH}"]],
+                        branches: [[name: "*/${params.GIT_BRANCH}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'CleanBeforeCheckout']], // quan trọng!
                         userRemoteConfigs: [[url: "https://github.com/${env.IMAGE_PREFIX}/spring-petclinic-microservices-ci-cd.git"]]
                     ])
+                    sh "git branch -a"
+                    sh "git log -1 --oneline"
                 }
             }
         }
