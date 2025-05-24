@@ -188,7 +188,7 @@ pipeline {
             steps {
                 script {
                     def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
-                    def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
+                    def nodeIP = "petclinic-dev" // Hoặc dùng lệnh lấy IP động nếu cần
                     def urls = []
         
                     servicesOutput.each { line ->
@@ -199,14 +199,14 @@ pipeline {
         
                         if (type == "NodePort" && portMapping.contains(":")) {
                             def nodePort = portMapping.split(":")[1].split("/")[0]
-                            // Tạo markdown link cho service
                             urls << "[${name}](https://${nodeIP}:${nodePort})"
                         }
                     }
         
-                    def description = urls.join("  \n")  // Dùng 2 khoảng trắng + \n để xuống dòng trong markdown
+                    def description = urls.join("<br>")  // Dùng <br> để xuống dòng trong HTML/Markdown của Jenkins
                     currentBuild.description = description
-                    echo "Build description set to:\n${description}"
+                    echo "📡 Accessible Service URLs:"
+                    urls.each { echo it }
                 }
             }
         }
