@@ -152,7 +152,7 @@ pipeline {
 
                     def appServices = ['vets-service', 'customers-service', 'visits-service', 'genai-service']
                     appServices.each { svc ->
-                        if (!servicesToBuildAndTags.constainsKey(svc)) {
+                        if (!servicesToBuildAndTags.containsKey(svc)) {
                             servicesToBuildAndTags[svc] = "main" 
                             echo "Deployment: Using 'main' tag for foundational service '${svc}'."
                         }
