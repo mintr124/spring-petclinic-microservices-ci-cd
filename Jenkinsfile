@@ -188,29 +188,24 @@ pipeline {
             steps {
                 script {
                     def servicesOutput = sh(script: "kubectl get svc --no-headers", returnStdout: true).trim().split("\n")
-                    def nodeIP = "petclinic-dev" 
-                    def urls = [] 
-                    def htmlLinks = [] 
-                
+                    def nodeIP = "petclinic-dev"  // Hoặc lấy IP động như ý bạn muốn
+                    def urls = []
+        
                     servicesOutput.each { line ->
                         def parts = line.tokenize()
                         def name = parts[0]
                         def type = parts[1]
                         def portMapping = parts[4]
-                
+        
                         if (type == "NodePort" && portMapping.contains(":")) {
                             def nodePort = portMapping.split(":")[1].split("/")[0]
-                            def url = "http://${nodeIP}:${nodePort}"
-                            urls << "${name} - ${url}"
-                            htmlLinks << """<a href="${url}">${name}</a>""" // Tạo HTML hyperlink
+                            urls << "[${name}](https://${nodeIP}:${nodePort})"
                         }
                     }
-                
-                    echo "📡 Accessible Service URLs:"
-                    urls.each { echo it } 
-                
-                    currentBuild.description = htmlLinks.join("<br>")
-                    echo "Set build description to: ${currentBuild.description}"
+        
+                    def description = urls.join("  \n") 
+                    currentBuild.description = description
+                    echo "Build description set to:\n${description}"
                 }
             }
         }
