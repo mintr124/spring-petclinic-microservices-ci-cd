@@ -109,7 +109,7 @@ pipeline {
         stage('Deploy to Kubernetes with Helm') {
             steps {
                 script {
-                //     def servicesToBuildAndTags = [:]
+                    def servicesToBuildAndTags = [:]
                 //     try {
                 //         unstash 'servicesToBuildAndTags'
                 //         def jsonString = readFile('servicesToBuildAndTags.json')
