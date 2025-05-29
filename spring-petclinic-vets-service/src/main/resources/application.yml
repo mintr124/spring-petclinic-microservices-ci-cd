@@ -7,11 +7,17 @@ spring:
     cache-names: vets
   profiles:
     active: production
-  eureka: 
+  zipkin:
+    base-url: http://zipkin:9411
+  eureka:
     client:
       serviceUrl:
         defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-server:8761/eureka/}
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 
 ---
 spring:
@@ -19,7 +25,14 @@ spring:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
-  eureka: 
+  zipkin:
+    base-url: http://zipkin:9411
+  eureka:
     client:
       serviceUrl:
         defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://discovery-server:8761/eureka/}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
