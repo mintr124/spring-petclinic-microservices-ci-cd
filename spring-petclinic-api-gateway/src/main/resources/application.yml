@@ -44,6 +44,11 @@ spring:
             - StripPrefix=2
             - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
 ---
 spring:
   config:
@@ -52,3 +57,8 @@ spring:
     import: configserver:http://config-server:8888
   zipkin:
     base-url: http://zipkin:9411
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
