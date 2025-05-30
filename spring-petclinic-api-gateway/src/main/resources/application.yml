@@ -1,8 +1,8 @@
 spring:
   application:
     name: api-gateway
-  config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+  # config:
+  #   import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
   cloud:
     gateway:
       default-filters:
@@ -47,4 +47,4 @@ spring:
   config:
     activate:
       on-profile: docker
-    import: configserver:http://config-server:8888
+    # import: configserver:http://config-server:8888
