@@ -1,10 +1,10 @@
 spring:
   application:
     name: api-gateway
+
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-  zipkin:
-    base-url: http://zipkin:9411
+
   cloud:
     gateway:
       default-filters:
@@ -46,19 +46,29 @@ spring:
 
 management:
   tracing:
+    enabled: true
     sampling:
-      probability: 1.0
-      
+      probability: 1.0  # Gửi 100% trace
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans  # endpoint chính xác của Zipkin
+
 ---
+
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
+
   zipkin:
-    base-url: http://zipkin:9411
+    base-url: http://zipkin:9411  # không cần thiết nếu đã có endpoint bên trên
 
 management:
   tracing:
+    enabled: true
     sampling:
       probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
