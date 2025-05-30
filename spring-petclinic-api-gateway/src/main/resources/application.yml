@@ -3,8 +3,6 @@ spring:
     name: api-gateway
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-  zipkin:
-    base-url: http://zipkin:9411
   cloud:
     gateway:
       default-filters:
@@ -44,21 +42,9 @@ spring:
             - StripPrefix=2
             - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
 
-management:
-  tracing:
-    sampling:
-      probability: 1.0
-
 ---
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
-  zipkin:
-    base-url: http://zipkin:9411
-
-management:
-  tracing:
-    sampling:
-      probability: 1.0
