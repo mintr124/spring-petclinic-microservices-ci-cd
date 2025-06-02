@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Include default Spring Boot logback settings -->
+    <!-- Kế thừa cấu hình mặc định của Spring Boot -->
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <!-- Optional: Enable dynamic log level change via JMX -->
+    <!-- Cho phép thay đổi mức log động qua JMX -->
     <jmxConfigurator/>
 
-    <!-- Define log format -->
+    <!-- Định nghĩa định dạng log chuẩn có traceId và spanId -->
     <property name="CONSOLE_LOG_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{traceId}/%X{spanId}] %msg%n"/>
 
+    <!-- Ghi log ra console -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </encoder>
     </appender>
 
+    <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <!-- Optional: Customize specific loggers -->
+    <!-- Gợi ý: Tăng mức log để thấy rõ tracing và các vấn đề HTTP -->
     <logger name="org.springframework.web" level="DEBUG"/>
-    <logger name="com.yourpackage" level="DEBUG"/>
+    <logger name="org.springframework.cloud.gateway" level="DEBUG"/>
+    <logger name="reactor.netty.http.client" level="INFO"/>
+    <logger name="reactor.netty.http.server" level="INFO"/>
 </configuration>
