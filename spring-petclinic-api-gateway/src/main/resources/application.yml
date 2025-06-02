@@ -45,13 +45,6 @@ spring:
             - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
 
 management:
-  tracing:
-    enabled: true
-    sampling:
-      probability: 1.0  # Gửi 100% trace
-  zipkin:
-    tracing:
-      endpoint: http://zipkin:9411/api/v2/spans  # endpoint chính xác của Zipkin
   endpoints:
     web:
       exposure:
@@ -64,6 +57,26 @@ management:
       prometheus:
         enabled: true
 
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # trace toàn bộ request
+    propagation:
+      type: b3  # tương thích với Zipkin và Loki exemplars
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  pattern:
+    # Log có chứa traceId và spanId
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.boot.actuate.metrics.web.reactive.client.MetricsWebClientFilterFunction: DEBUG
+
 ---
 
 spring:
@@ -73,7 +86,7 @@ spring:
     import: configserver:http://config-server:8888
 
   zipkin:
-    base-url: http://zipkin:9411  # không cần thiết nếu đã có endpoint bên trên
+    base-url: http://zipkin:9411
 
 management:
   tracing:
