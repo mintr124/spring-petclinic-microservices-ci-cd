@@ -62,7 +62,7 @@ management:
     sampling:
       probability: 1.0  # trace toàn bộ request
     propagation:
-      type: b3  # tương thích với Zipkin và Loki exemplars
+      type: b3  # tương thích với Zipkin và Loki exemplar
 
   zipkin:
     tracing:
