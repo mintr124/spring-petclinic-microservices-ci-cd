@@ -30,5 +30,5 @@
     <logger name="org.springframework.cloud.gateway" level="DEBUG"/>
     <logger name="reactor.netty.http.client" level="INFO"/>
     <logger name="reactor.netty.http.server" level="INFO"/>
-    <logger name="org.springframework.boot.actuate.metrics" level="DEBUG"/> </configuration>
+    <logger name="org.springframework.boot.actuate.metrics" level="DEBUG"/>
 </configuration>
