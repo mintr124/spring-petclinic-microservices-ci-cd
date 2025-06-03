@@ -30,7 +30,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.function.Function;
 
-// Import các thư viện logging
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/api/gateway")
 public class ApiGatewayController {
 
-    // Khởi tạo logger cho class này
     private static final Logger LOG = LoggerFactory.getLogger(ApiGatewayController.class);
 
     private final CustomersServiceClient customersServiceClient;
@@ -60,7 +58,6 @@ public class ApiGatewayController {
 
     @GetMapping(value = "owners/{ownerId}")
     public Mono<OwnerDetails> getOwnerDetails(final @PathVariable int ownerId) {
-        // Ghi log khi bắt đầu xử lý yêu cầu getOwnerDetails
         LOG.info("Request received for owner details with ID: {}", ownerId);
 
         return customersServiceClient.getOwner(ownerId)
@@ -69,25 +66,19 @@ public class ApiGatewayController {
                     .transform(it -> {
                         ReactiveCircuitBreaker cb = cbFactory.create("getOwnerDetails");
                         return cb.run(it, throwable -> {
-                            // Ghi log khi circuit breaker fallback xảy ra
                             LOG.warn("Circuit breaker fallback for getOwnerDetails. Error: {}", throwable.getMessage());
                             return emptyVisitsForPets();
                         });
                     })
                     .map(addVisitsToOwner(owner))
             )
-            .doOnSuccess(ownerDetails -> LOG.info("Successfully fetched owner details for ID: {}", ownerDetails.getId()))
+            // SỬA LỖI TẠI ĐÂY: Thay ownerDetails.getId() bằng ownerDetails.id()
+            .doOnSuccess(ownerDetails -> LOG.info("Successfully fetched owner details for ID: {}", ownerDetails.id()))
             .doOnError(throwable -> LOG.error("Error fetching owner details: {}", throwable.getMessage()));
     }
 
-    /**
-     * Endpoint mới để kiểm tra logs và traceId/spanId.
-     * Khi truy cập endpoint này, một dòng log sẽ được ghi.
-     */
     @GetMapping(value = "/test-log")
     public Mono<String> testLogEndpoint() {
-        // Ghi một dòng log đơn giản.
-        // TraceId và SpanId sẽ tự động được thêm vào dòng log này nhờ cấu hình Logback và Micrometer Tracing.
         LOG.info("Test log endpoint hit. Checking if traceId and spanId are present.");
         return Mono.just("Log message sent. Check your API Gateway logs for traceId and spanId!");
     }
