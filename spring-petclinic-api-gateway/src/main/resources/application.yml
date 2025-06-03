@@ -69,9 +69,6 @@ management:
       endpoint: http://zipkin:9411/api/v2/spans
 
 logging:
-  pattern:
-    # Log có chứa traceId và spanId
-    level: "%5p [${spring.application.name}] traceId=%X{traceId}, spanId=%X{spanId} - %m%n"
   level:
     root: INFO
     org.springframework.web: INFO
