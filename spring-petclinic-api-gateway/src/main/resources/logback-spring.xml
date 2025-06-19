@@ -6,9 +6,9 @@
     <!-- Cho phép thay đổi mức log động qua JMX -->
     <jmxConfigurator/>
 
-    <!-- Định nghĩa định dạng log chuẩn có traceId và spanId -->
+    <!-- Định nghĩa định dạng log chuẩn có nhãn traceId và spanId -->
     <property name="CONSOLE_LOG_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%X{traceId}/%X{spanId}] %msg%n"/>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [traceId=%X{traceId} spanId=%X{spanId}] %msg%n"/>
 
     <!-- Ghi log ra console -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -22,7 +22,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <!-- Gợi ý: Tăng mức log để thấy rõ tracing và các vấn đề HTTP -->
+    <!-- Mức log chi tiết cho các thành phần tracing và gateway -->
     <logger name="org.springframework.web" level="DEBUG"/>
     <logger name="io.micrometer.tracing" level="DEBUG"/> 
     <logger name="brave" level="DEBUG"/> 
