@@ -47,6 +47,8 @@ import java.time.Duration;
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
+        // Kích hoạt context propagation để traceId và spanId hiển thị trong log
+        reactor.core.publisher.Hooks.enableAutomaticContextPropagation();
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
